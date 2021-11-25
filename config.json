@@ -1,0 +1,26 @@
+{
+  "configs": [
+    {
+      "api-key": "",
+      "api-secret": "",
+      "upper_price": "4",
+      "lower_price": "1.5",
+      "profit_percent": "0.2",
+      "stop_loss": "0.99",
+      "dynamic": "True",
+      "quote": "BTC"
+    }
+  ],
+  "inputs": {
+    "log_level": "DEBUG",
+    "value": "3",
+    "type_is": "historical",
+    "keep_delete": "3",
+    "mode": "DELETE",
+    "database": "data.db",
+    "process_list_or_string": "all",
+    "download_it": "Yes",
+    "estimate": "False",
+    "plotter_database": "data.db"
+  }
+}

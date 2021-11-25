@@ -1,0 +1,21 @@
+buy sell signal time taken modification for historical checks
+imports modifications
+files packages
+stopping process when queue is empty
+Logger
+docstring
+documentation
+
+
+
+change change column in parameter table to upper and lower
+check upper and lower in buy_sell_signals they are mismatched
+check symbol and coin column in parameter table and buy_sell_signals change them to market_pair
+
+
+0.0 Multi symbol data simulator support
+0.1.simulating results for a given range of dates with respective formatting
+1.use committer in signal historical module rather in diff_checker due to database lock error for processing more number of data files
+2.using json format as an option to store data (as only sqlite3 is supported)
+3.respective changes in all files for supporting json format(plotter)
+

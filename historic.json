@@ -1,0 +1,14 @@
+{
+    "base_url":"https://data.binance.vision",
+    "coins":["ETHUSDT","SHIBUSDT"],
+    "from_date": "20210920",
+    "to_date": "20210921",
+    "data_type":"trades",
+    "to_database":"True",
+    "add_all_data": "False",
+    "number_of_files_each_process":"5",
+    "simulator_database": "database/data.db",
+    "simulator_use_change":"",
+    "simulator_table_to_use":"buy_sell_signals",
+    "days_frequency":"2"
+}

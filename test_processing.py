@@ -687,20 +687,21 @@
 #     for each in dates[date]:
 #         print("{} - {}".format(date, each))
 
-def checker(x,y,z):
-    a=input("a is : ")
-    print(a)
-import multiprocessing as mp
-if __name__ == "__main__":
-    checker_processes = []
+# def checker(x,y,z):
+#     a=input("a is : ")
+#     print(a)
+# import multiprocessing as mp
+# if __name__ == "__main__":
+#     checker_processes = []
        
-    tmp = 0
-    for process in range(10):
+#     tmp = 0
+#     for process in range(10):
         
-            checker_processes.append(mp.Process(target=checker, args=(
-                1, 10, 1)))
-            checker_processes[tmp].start()
-            tmp += 1
+#             checker_processes.append(mp.Process(target=checker, args=(
+#                 1, 10, 1)))
+#             checker_processes[tmp].start()
+#             tmp += 1
 
-    for process in range(10):
-        checker_processes[process].join()
+#     for process in range(10):
+#         checker_processes[process].join()
+

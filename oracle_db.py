@@ -10,9 +10,6 @@ def connect_to_Oracle(user, password,address):
 
     # cursor.execute("create table  employee(empid integer primary key, name varchar2(30), salary number(10, 2))")
     return cursor
-    # cursor.execute("""describe  employee""")
-    cursor.close()
-    con.close()
 cursor_is=connect_to_Oracle("system","oracle","localhost:49161")
 
 cursor_is.execute("""

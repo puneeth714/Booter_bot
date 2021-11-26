@@ -690,15 +690,15 @@ def process_args(all_differences):
         Process 8   0.07 - 0.08     
         Process 9   0.08 - 0.09     
         Process 10  0.09 - 0.10     
-        Process 11  0.1 - 0.02      
-        Process 12  0.2 - 0.03      
-        Process 13  0.3 - 0.04      
-        Process 14  0.4 - 0.05      
-        Process 15  0.5 - 0.06      
-        Process 16  0.6 - 0.07      
-        Process 17  0.7 - 0.08      
-        Process 18  0.8 - 0.09      
-        Process 19  0.9 - 0.10      
+        Process 11  0.1 - 0.2      
+        Process 12  0.2 - 0.3      
+        Process 13  0.3 - 0.4      
+        Process 14  0.4 - 0.5      
+        Process 15  0.5 - 0.6      
+        Process 16  0.6 - 0.7      
+        Process 17  0.7 - 0.8      
+        Process 18  0.8 - 0.9      
+        Process 19  0.9 - 1.0      
         """)
 
 
@@ -830,7 +830,7 @@ logger.debug("queue created {} as price1".format(price1))
 start1 = time.time()
 
 
-num_processes = len(all_differences)-1
+num_processes = len(list_is)
 curs = conn.cursor()
 
 
@@ -859,25 +859,25 @@ def main(sender: mp.Queue or None):
     elif typeof == "historical":
         """if historical mode use this process specifications the difference is we are isolating processes in different way(slightly) 
         sometimes"""
-        # if __name__ == "diff_checker":
-        checker_processes = []
-        changer_process = mp.Process(
-            target=changer, args=(typeof, sender,))
-        commiter_process = mp.Process(target=commiter, args=())
-        commiter_process.start()
-        changer_process.start()
-        tmp = 0
-        for process in range(num_processes):
-            if process+1 in list_is:
-                checker_processes.append(mp.Process(target=checker, args=(
-                    start, all_differences[process], all_differences[process+1],)))
-                checker_processes[tmp].start()
-                tmp += 1
+        if __name__ == "diff_checker":
+            checker_processes = []
+            changer_process = mp.Process(
+                target=changer, args=(typeof, sender,))
+            commiter_process = mp.Process(target=commiter, args=())
+            commiter_process.start()
+            changer_process.start()
+            tmp = 0
+            for process in range(num_processes):
+                if process+1 in list_is:
+                    checker_processes.append(mp.Process(target=checker, args=(
+                        start, all_differences[process], all_differences[process+1],)))
+                    checker_processes[tmp].start()
+                    tmp += 1
 
-        for process in range(len(list_is)):
-            checker_processes[process].join()
-        changer_process.join()
-        commiter_process.join()
+            for process in range(len(list_is)):
+                checker_processes[process+1].join()
+            changer_process.join()
+            commiter_process.join()
 
 # main(price1)
 # print(process_type())

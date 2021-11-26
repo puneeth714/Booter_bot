@@ -48,13 +48,13 @@ class simulator(binance_data):
 
     def data(self):
         execute = self.query_generator()
+        data={}
         if len(execute) == 1:
             for each_days in execute[self.asset_name[0]].keys():
                 self.cursor.execute(execute[self.asset_name[0]][each_days])
                 tmp = {each_days: self.cursor.fetchall()}
-                data = [self.cursor.fetchall()]
+                data[self.asset_name[0]] = tmp
         else:
-            data = {}
             tmp={}
             for i in execute.keys():
                 for each_days in execute[i]:
@@ -75,16 +75,13 @@ class simulator(binance_data):
         if min_max[0] is None and min_max[1] is None:
             print("No data in table")
             exit(0)
-        # convert unix timestamp in ms to datetime
-        self.min_max = [datetime.fromtimestamp(
-            min_max[0]/1000), datetime.fromtimestamp(min_max[1]/1000)]
-
+        self.min_max = min_max
     def query_generator(self):
         data_query = {}
         query = {}
         if self.freq != "":
             dates = self.calculate()
-            if len(self.asset_name) != 1:
+            if len(self.asset_name) != 0:
                 for i in range(len(self.asset_name)):
 
                     for date in dates.keys():
@@ -168,30 +165,18 @@ class simulator(binance_data):
                     print("     For change {} balance  became {}".format(keys, value))
 
     def calculate(self):
-        dates_list = {}
-        each = []
-        j = 0
-        k = 0
-        self.from_date, self.to_date = config()['from_date'], config()[
-            'to_date']
-
-        for dates in self.daterange():
-            k += 1
-            timestamp_is = int(time.mktime(dates.timetuple())*1000)
-            each.append(timestamp_is)
-            if k == int(self.freq):
-                k = 0
-                j += 1
-                dates_list[j] = each
-                each = []
-                continue
-        if dates_list == {} and each != []:
-            dates_list[0] = each
-        elif k != self.freq and each != []:
-            dates_list[j] = each
-        return dates_list
-
-
+        days_frequency=(self.min_max[1]-self.min_max[0])/(int(self.freq)*24*60*60*1000)
+        if int(days_frequency) == 0:
+            return {1: [self.min_max[0], self.min_max[1]]}
+        dates = {}
+        present=self.min_max[0]
+        for i in range(int(days_frequency)):
+            dates[i+1] = [present, present+self.freq*60*60*24*1000]
+            present=present+self.freq*60*60*24*1000
+            if present>self.min_max[1]:
+                dates[i+1][1]=self.min_max[1]
+                break
+        return dates
 def config():
     # read the json file 'historic.json'
     with open('historic.json', 'r') as f:

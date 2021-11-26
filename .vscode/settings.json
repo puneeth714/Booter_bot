@@ -315,16 +315,9 @@
         {
             "previewLimit": 100,
             "driver": "SQLite",
-            "name": "data",
+            "name": "data1",
             "group": "signals",
-            "database": "${workspaceFolder:botter}/database/data.db"
-        },
-        {
-            "previewLimit": 100,
-            "driver": "SQLite",
-            "name": "data_1_day",
-            "group": "signals",
-            "database": "${workspaceFolder:botter}/database/data1.db"
+            "database": "${workspaceFolder:Booter_bot}/database/data.db"
         }
     ],
     "cSpell.enableFiletypes": [

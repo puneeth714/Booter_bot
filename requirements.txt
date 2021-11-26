@@ -1,3 +1,4 @@
 pandas
 loguru
 python-binance
+matplotlib

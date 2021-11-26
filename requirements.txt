@@ -2,3 +2,4 @@ pandas
 loguru
 python-binance
 matplotlib
+tabulate

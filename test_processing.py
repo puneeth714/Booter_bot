@@ -704,4 +704,9 @@
 
 #     for process in range(10):
 #         checker_processes[process].join()
+# from tabulate import tabulate
+# data = [[1,2],[2,3],[3,4]]
+# for [dats] in data:
+#     print(tabulate(dats,tablefmt="grid"))
+
 

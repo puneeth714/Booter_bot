@@ -58,7 +58,7 @@ class data_load:
             return params
         elif manual_config == "manual":
             return self._extracted_from_parameters_handler_40()
-
+    
     # TODO Rename this here and in `parameters_handler`
     def _extracted_from_parameters_handler_40(self):
         print("Enter manual parameters ...")

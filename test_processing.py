@@ -710,3 +710,23 @@
 #     print(tabulate(dats,tablefmt="grid"))
 
 
+# from matplotlib import pyplot as plt
+# a=[1,2,3,4,5,6,7,8,9,10]
+# plt.plot(a,a)
+# plt.show()
+
+# import sqlite3
+# conn=sqlite3.Connection("database/data.db")
+# cursor=conn.cursor()
+# cursor.execute("SELECT * FROM buy_sell_signals WHERE market_pair = 'ETHUSDT' and lower = 0.3 or lower = 0.4 or lower = 0.5  and time>1632096237685 and time<1632268756522")
+# data=cursor.fetchall()
+# j=0
+# k=[]
+# print(len(data))
+# for i in data:
+#     if i[0]<j:
+#         print(i)
+#         k.append(i)
+#     else:
+#         j=i[0]
+# print(len(k))

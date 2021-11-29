@@ -1,7 +1,7 @@
 import sqlite3
+import matplotlib
 import matplotlib.pyplot as plt
 from pandas.core.frame import DataFrame
-import plotly.express as px
 import pandas as pd
 import json
 from loguru import logger
@@ -154,7 +154,20 @@ def pandas_format(conn: sqlite3.Connection, queries: str or list) -> DataFrame:
     elif type(queries) == str:
         df = pd.read_sql_query(queries, conn)
         return df
-
+def simulator_plot(values):
+    for market_pairs in values.keys():
+        plt.figure(str(market_pairs))
+        plt.xlabel('Time')
+        plt.ylabel('Price')
+        for dates_freq in values[market_pairs].keys():
+            for parameters in values[market_pairs][dates_freq].keys():
+                time=pd.to_datetime(values[market_pairs][dates_freq][parameters][0],unit='ms')
+                plt.plot(time, values[market_pairs][dates_freq][parameters][1],label=str(dates_freq)+" "+str(parameters))
+        plt.gcf().autofmt_xdate()
+        myFmt = matplotlib.dates.DateFormatter('%D:%H:%M')
+        plt.gca().xaxis.set_major_formatter(myFmt)
+        plt.legend(loc='upper left')
+        plt.show()
 
 def pandas_plot(df: DataFrame or list):
     if type(df) == list:
@@ -165,7 +178,6 @@ def pandas_plot(df: DataFrame or list):
             # df[i].plot(x='time_fetch', y='present')
             print(df[i]['time_fetch'])
             plt.plot(df[i]['time_fetch'], df[i]['present'])
-            px.scatter(x=df[i]['time_fetch'], y=df[i]['present'])
         plt.show()
 
     elif type(df) == DataFrame:
@@ -222,4 +234,4 @@ def main():
     pandas_plot(df)
 
 
-main()
+# main()

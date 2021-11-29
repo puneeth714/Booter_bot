@@ -144,15 +144,10 @@ class binance_data:
         keep = []
         download_files = []
         extract_data_files = []
-        if len(os.listdir()) and len(os.listdir("../"))-1== 0:
+        if len(os.listdir()) and len(os.listdir("../")) == 1:
             print("No files present in binance_data/extract_data")
             for filename in names:
                 download_files.append(filename[0])
-            self.downloads = download_files
-            self.extract_data_files = extract_data_files
-            # self.extract = extract_data_files
-            # return [keep, extract_data_files, download_files]
-            return {'keep': keep, 'extract_data_files': extract_data_files, 'download_files': download_files}
         else:
 
             for filename in names:
@@ -165,14 +160,13 @@ class binance_data:
                     extract_data_files.append(filename[0])
                 else:
                     download_files.append(filename[0])
-            self.downloads = download_files
-            self.extract_data_files = extract_data_files
             self.keep = keep
-            # self.files = download_files
-            # self.extract = extract_data_files
 
-            # return [keep, extract_data_files, download_files]
-            return {'keep': keep, 'extract_data_files': extract_data_files, 'download_files': download_files}
+        self.extract_data_files = extract_data_files
+        self.downloads = download_files
+        # self.extract = extract_data_files
+        # return [keep, extract_data_files, download_files]
+        return {'keep': keep, 'extract_data_files': extract_data_files, 'download_files': download_files}
             # for file_name in os.listdir():
             #     if file_name in extract_names:
             #         keep.append(file_name)

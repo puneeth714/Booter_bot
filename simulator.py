@@ -5,13 +5,15 @@ import sqlite3
 from datetime import datetime
 from binance_data_handler import binance_data
 from tabulate import tabulate
+from matplotlib import pyplot as plt
+from ploter import simulator_plot
 
 
 class simulator(binance_data):
     """simulator class
     """
 
-    def __init__(self, default, asset_name, logging, database, change, table, freq,table_list_results):
+    def __init__(self, default, asset_name, logging, database, change, table, freq, table_list_results):
         """constructor for simulator
 
         Args:
@@ -34,6 +36,7 @@ class simulator(binance_data):
         self.min_max = []
         self.all_market_pairs_balance = {}
         self.freq = freq
+        self._plot_simulation_data_ = {}
         self.balance = self.__create_balance()
         self.__connection__()
 
@@ -94,6 +97,17 @@ class simulator(binance_data):
                                 self.table, "market_pair", self.asset_name[i], "time", dates[date][0], "time", dates[date][len(
                                     dates[date])-1]
                             )
+                        elif type(self.change) == list:
+                            change_query = "".join(
+                                "{} = {} or ".format("lower", str(each_change))
+                                for each_change in self.change
+                            )
+                            change_query = change_query[:-3]
+
+                            query[date] = "SELECT * FROM {} WHERE {} = '{}' and {} and {}>{} and {}<{}".format(
+                                self.table, "market_pair", self.asset_name[i], change_query, "time", dates[date][0], "time", dates[date][len(
+                                    dates[date])-1]
+                            )
                         else:
                             query[date] = "SELECT * FROM {} WHERE {} = '{}' and {} ={} and {}>{} and {}<{}".format(
                                 self.table, "market_pair", self.asset_name[i], "lower", self.change, "time", dates[date][0], "time", dates[date][len(
@@ -102,9 +116,10 @@ class simulator(binance_data):
 
                     data_query[self.asset_name[i]] = query
                     query = {}
+                print(data_query)
                 return data_query
-            # need to check this code
-            # there is no need of below statements
+                # need to check this code
+                # there is no need of below statements
         elif len(self.asset_name) != 1:
             for i in range(len(self.asset_name)):
                 if self.change == "":
@@ -126,30 +141,53 @@ class simulator(binance_data):
                 self.table, "market_pair", self.asset_name[0], "lower", self.change)
 
     def simulate_signals(self):
+        #Need to remove space constraint variables
+        #each_parameter_balance_simulator can be used in place of each_parameter_balance and so on... (names containing 
+        # simulator can be used insted in many aspects of this function)
         balance = self.balance
         data = self.data()
         each_parameter_balance = {}
+        each_parameter_balance_simulator = {}
         all_market_pairs_balance = {}
-
         for each_balance in balance.keys():
             dates = {}
+            data_simulate_dates = {}
             for data_in in data[each_balance].keys():
                 for each_data in data[each_balance][data_in]:
                     if each_data[5] not in each_parameter_balance.keys():
                         each_parameter_balance[each_data[5]
                                                ] = balance[each_balance]
+                        each_parameter_balance_simulator[each_data[5]] = [
+                            [], []]
+                        # self._plot_simulation_data_[each_balance]={data_in:{each_data[5]:[[each_data[0],balance[each_balance]]]}}
+
                     each_parameter_balance[each_data[5]] = self._updater_(
                         each_data[2], each_parameter_balance[each_data[5]])
+                    each_parameter_balance_simulator[each_data[5]][0].append(
+                        each_data[0])
+                    each_parameter_balance_simulator[each_data[5]][1].append(
+                        each_parameter_balance[each_data[5]])
+                    # self._plot_simulation_data_[each_balance][data_in][each_data[5]].append([each_data[0],each_parameter_balance[each_data[5]]])
+
+                    # plt.plot(each_data[0], each_parameter_balance[each_data[5]])
+                    # self._plot_simulation_data_[0].append(each_data[0])
+                    # self._plot_simulation_data_[1].append(each_parameter_balance[each_data[5]])
+                # plt.show()
                 dates[data_in] = each_parameter_balance
+                data_simulate_dates[data_in] = each_parameter_balance_simulator
                 del each_parameter_balance
                 each_parameter_balance = {}
             all_market_pairs_balance[each_balance] = dates
+            self._plot_simulation_data_[each_balance] = data_simulate_dates
         self.all_market_pairs_balance = all_market_pairs_balance
 
     def _updater_(self, change, balance):
         return balance+balance*change/100
 
-    def simulate_results(self):
+    def _plotter_(self):
+        simulator_plot(self._plot_simulation_data_)
+
+    def simulate_results(self):  # sourcery no-metrics
         self.min_max_in_table()
         self.simulate_signals()
         print("Start time {} \nEnd time {}".format(
@@ -165,40 +203,49 @@ class simulator(binance_data):
                         self.all_market_pairs_balance[each_market][each_date])
         else:
             print("No sorting of results")
-        if self.table_list_results=="list":
+        if self.table_list_results == "list":
             for each_market in self.all_market_pairs_balance:
                 for each_date in self.all_market_pairs_balance[each_market]:
                     print("Market pair : {}".format(each_market))
                     print("Date : {}".format(each_date))
                     for keys, value in self.all_market_pairs_balance[each_market][each_date].items():
-                        print("     For change {} balance  became {}".format(keys, value))
+                        print("     For change {} balance  became {}".format(
+                            keys, value))
                     print("\n")
         elif "table" in self.table_list_results:
-            table_format=self.table_list_results[self.table_list_results.index("-")+1:]
-            if table_format=="html":
+            table_format = self.table_list_results[self.table_list_results.index(
+                "-")+1:]
+            if table_format == "html":
                 with open("results.html", "w") as f:
                     f.write(tabulate(self.tables(), headers=[
-                        "Market Pair", "parameter", "Balance", "Balance after update", "Change"],tablefmt=table_format))
+                        "Market Pair", "parameter", "Balance", "Balance after update", "Change"], tablefmt=table_format))
             else:
                 print(tabulate(self.tables(), headers=[
-                            "Market Pair", "parameter", "Balance", "Balance after update", "Change"],tablefmt=table_format))
-        elif self.table_list_results=="csv":
+                    "Market Pair", "parameter", "Balance", "Balance after update", "Change"], tablefmt=table_format))
+        elif self.table_list_results == "csv":
             import csv
             with open('results.csv', 'w') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(["Market Pair", "parameter", "Balance", "Balance after update", "Change"])
+                writer.writerow(["Market Pair", "parameter",
+                                "Balance", "Balance after update", "Change"])
                 for each_market in self.all_market_pairs_balance:
                     for each_date in self.all_market_pairs_balance[each_market]:
                         for keys, value in self.all_market_pairs_balance[each_market][each_date].items():
-                            writer.writerow([each_market, keys, value, value+value*keys/100, keys])
-        elif self.table_list_results=="json":
+                            writer.writerow(
+                                [each_market, keys, value, value+value*keys/100, keys])
+        elif self.table_list_results == "json":
             import json
             with open('results.json', 'w') as jsonfile:
-                json.dump(self.all_market_pairs_balance, jsonfile,indent=4)
-        
+                json.dump(self.all_market_pairs_balance, jsonfile, indent=4)
 
         else:
-            print("Please enter table or list in table_list_results parameter of historic.json ")
+            print(
+                "Please enter table or list in table_list_results parameter of historic.json ")
+        if "(plot)" in self.table_list_results:
+            self._plotter_()
+        else:
+            print("No plot")
+
     def tables(self):
         table = []
         for market in self.all_market_pairs_balance.keys():
@@ -236,6 +283,6 @@ def config():
 data_config = config()
 simulator_is = simulator(default=1000, asset_name=data_config["coins"], logging=0,
                          database=data_config["simulator_database"], change=data_config["simulator_use_change"],
-                          table=data_config["simulator_table_to_use"], freq=data_config["days_frequency"],table_list_results=data_config["table_list_results"])
+                         table=data_config["simulator_table_to_use"], freq=data_config["days_frequency"], table_list_results=data_config["table_list_results"])
 
 simulator_is.simulate_results()

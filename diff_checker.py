@@ -121,82 +121,84 @@ def checker(start: list, upper: float, lower: float) -> Exception:
         #     exit(0)
         # #logger.debug("got price {}".format(price))
         # else:
-        
-        if True:
-            if typeof == "historical":
-                # if price == "done":
-                #     print("No signals")
-                #     exit(0)
-                time_type = int(price[1])
-                price = [price[0]]
-                if started == 0:
-                    logger.debug("got price {}".format(price))
+        tmp=None
+        if typeof == "historical":
+            # if price == "done":
+            #     print("No signals")
+            #     exit(0)
+            time_type = int(price[1])
+            price = [price[0]]
+            if started == 0:
+                logger.debug("got price {}".format(price))
 
-                    start = price
-                elif list(start_each_value.keys())[0] != price[0]['symbol']:
-                    start = price
-                    start_each_value = {}
-            elif typeof == "live":
-                time.sleep(2)
-                time_type = datetime.timestamp(datetime.now())
-            for i in range(len(price)):
-                """This for loop runs for all values in the queue if live all symbols in historical specific data"""
-                if start_each_value == {} or typeof == "live":
+                start = price
+            elif list(start_each_value.keys())[0] != price[0]['symbol']:
+                start = price
+                start_each_value = {}
+        elif typeof == "live":
+            time.sleep(2)
+            time_type = datetime.timestamp(datetime.now())
+        for i in range(len(price)):
+            """This for loop runs for all values in the queue if live all symbols in historical specific data"""
+            if start_each_value == {} or typeof == "live":
 
-                    start_each_value[start[i]['symbol']] = [
-                        start[i]["price"], None, None, None, None]
-                # start_each_value.append(float(start[i]['price']))
-                update_price = diff(
-                    float(price[i]['price']), float(start_each_value[price[i]['symbol']][0]), upper, lower, price[i]['symbol'], time_type)
-                try:
-                    if update_price[0]:
-                        # start_each_value[i] = price[i]['price']
-                        if typeof == "live":
-                            each_time_start = time.time()
-                        start_each_value[price[i]['symbol']
-                                         ][0] = price[i]['price']
-                        if update_price[1] == "sell":
-                            start_each_value[price[i]['symbol']][2] = True
-                            start_each_value[price[i]
-                                             ['symbol']][4] = update_price[4]
-                        else:
-                            start_each_value[price[i]['symbol']][1] = True
-                            start_each_value[price[i]
-                                             ['symbol']][3] = update_price[3]
+                start_each_value[start[i]['symbol']] = [
+                    start[i]["price"], None, None, None, None]
+            # start_each_value.append(float(start[i]['price']))
+            update_price = diff(
+                float(price[i]['price']), float(start_each_value[price[i]['symbol']][0]), upper, lower, price[i]['symbol'], time_type)
+            try:
+                if update_price[0]:
+                    # start_each_value[i] = price[i]['price']
+                    if typeof == "live":
+                        each_time_start = time.time()
+                    tmp=start_each_value[price[i]['symbol']
+                                     ][0]
+                    start_each_value[price[i]['symbol']
+                                     ][0] = price[i]['price']
+                if update_price[1] == "sell":
+                    start_each_value[price[i]['symbol']][2] = True
+                    start_each_value[price[i]
+                                        ['symbol']][4] = update_price[4]
+                else:
+                    start_each_value[price[i]['symbol']][1] = True
+                    start_each_value[price[i]
+                                        ['symbol']][3] = update_price[3]
 
-                            # buy_sell_signals(update_price[1],price[i]['symbol'],upper,lower)
-                except Exception:
-                    continue
-                    # print(Exception)
-                    # continue
-                if start_each_value[price[i]['symbol']][1] == True and start_each_value[price[i]['symbol']][2] == True:
-                    """checks if the price of an instrument has changed in both directions i.e this condition become true when buy and sell signals are created by a
+                        # buy_sell_signals(update_price[1],price[i]['symbol'],upper,lower)
+            except Exception:
+                pass
+                # print(Exception)
+                # continue
+            if start_each_value[price[i]['symbol']][1] == True and start_each_value[price[i]['symbol']][2] == True:
+                """checks if the price of an instrument has changed in both directions i.e this condition become true when buy and sell signals are created by a
                     particular pair(Instrument)"""
-                    end_time_filled = None
-                    if typeof == "historical":
-                        end_time_filled = int(
-                            start_each_value[price[i]['symbol']][3]-start_each_value[price[i]['symbol']][4])/1000
-                        if end_time_filled < 0:
-                            end_time_filled = -1*end_time_filled
-                    elif typeof == "live":
-                        end_time_filled = time.time()-each_time_start
-                    # print(price[i]['symbol'])
-                    # print("\n\n")
-                    logger.debug("buy and sell signals created for {} with upper {} and lower {} and time_taken {}".format(
-                        price[i]['symbol'], upper, lower, end_time_filled))
-                    insert_into(symbol=price[i]['symbol'], upper=upper,
-                                lower=lower, time_taken=end_time_filled, work='buy_sell',
-                                present=float(price[i]['price']), side=update_price[1], to_check=update_price[2],
-                                check_with=float(start_each_value[price[i]['symbol']][0]), time_type=time_type)
-                    start_each_value[price[i]['symbol']][1] = None
-                    start_each_value[price[i]['symbol']][2] = None
-
-                    # buy_sell_signals(price[i]['symbol'],
-                    #                  upper, lower, end_time_filled)
-
-            # b=start_each_value
-            # print("b is ",b)
-            started += 1
+                end_time_filled = None
+                if typeof == "historical":
+                    end_time_filled = int(
+                        start_each_value[price[i]['symbol']][3]-start_each_value[price[i]['symbol']][4])/1000
+                    if end_time_filled < 0:
+                        end_time_filled = -1*end_time_filled
+                elif typeof == "live":
+                    end_time_filled = time.time()-each_time_start
+                # print(price[i]['symbol'])
+                # print("\n\n")
+                logger.debug("buy and sell signals created for {} with upper {} and lower {} and time_taken {}".format(
+                    price[i]['symbol'], upper, lower, end_time_filled))
+                insert_into(symbol=price[i]['symbol'], upper=upper,
+                            lower=lower, time_taken=end_time_filled, work='buy_sell',
+                            present=float(price[i]['price']), side=update_price[1], to_check=update_price[2],
+                            check_with=float(tmp), time_type=time_type)
+                start_each_value[price[i]['symbol']][1] = None
+                start_each_value[price[i]['symbol']][2] = None
+                # buy_sell_signals(price[i]['symbol'],
+                #                  upper, lower, end_time_filled)
+        # if typeof == "historical":
+        #     start_each_value[price[i]['symbol']
+        #                              ][0] = price[i]['price']
+        # b=start_each_value
+        # print("b is ",b)
+        started += 1
 
 
 @logger.catch
@@ -324,8 +326,6 @@ def insert_into(present: float, check_with: float, to_check: float, side: str, u
 
 
 logger.catch()
-
-
 def commiter():
     """execute the query in given connection of database"""
     query = commits.get()
@@ -464,7 +464,6 @@ def changer(data: str, sender: mp.Queue):
             print(filename)
             if filename == "done":
                 break
-                
             os.chdir("binance_data/extract_data")
             # with pd.read_csv(filename,"r") as f:
             it_is = re.search("[0-9A-Z]*", filename)
@@ -481,13 +480,9 @@ def changer(data: str, sender: mp.Queue):
         if filename=="done":
 
             sender.put("completed")
-            if sender.empty():
+            if sender.empty() or not sender.empty():
                 print("done")
-                mp.Process.terminate()
-            else:
-                sender.join()
-                print("done")
-
+                # mp.Process.terminate()
     else:
         """if typeof didn't match live or historical raise a problem and ask for entering data and call this function(changer) again until value matches any"""
         print("you have entered {} which is not live nor historical".format(data))
@@ -723,7 +718,17 @@ def process_type(processes_list_or_string=None):
             logger.info("The process list is {}".format(
                 processes_list_or_string[length:]))
             return processes_list_or_string[length:]
-        # return [int(processes_list_or_string)]
+        else:
+            try:
+                processes_list_or_string = int(processes_list_or_string)
+                logger.info("The process list is {}".format(
+                    processes_list_or_string))
+                return [processes_list_or_string]
+            except Exception as e:
+                print(
+                    "May have entered non-integer values try again \n Exiting...")
+                exit(e)
+            # return [int(processes_list_or_string)]
     elif processes_list_or_string == "all":
         return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
@@ -875,7 +880,7 @@ def main(sender: mp.Queue or None):
                     tmp += 1
 
             for process in range(len(list_is)):
-                checker_processes[process+1].join()
+                checker_processes[process].join()
             changer_process.join()
             commiter_process.join()
 

@@ -730,3 +730,11 @@
 #     else:
 #         j=i[0]
 # print(len(k))
+import binance
+client=binance.Client()
+# print(client.get_order_book(symbol='ETHUSDT'))
+
+a=client.get_klines(symbol='ETHUSDT', interval='1m',limit=10)
+print(a)
+import ta
+a=ta.add_all_ta_features()
